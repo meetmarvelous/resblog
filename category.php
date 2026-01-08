@@ -1,12 +1,28 @@
 <?php require("libs/fetch_data.php");?>
 <?php //code to get the item using its id
 include("database/conn.php");//database config file
-$id=$_REQUEST['id']; $query="SELECT * from blog_categories where id='".$id."'"; $result=mysqli_query($GLOBALS["___mysqli_ston"],$query) or die ( ((is_object($GLOBALS["___mysqli_ston"]))? mysqli_error($GLOBALS["___mysqli_ston"]) : (($___mysqli_res = mysqli_connect_error()) ?$___mysqli_res : true))); 
-$row = mysqli_fetch_assoc($result);?>
+
+// SECURITY FIX: Sanitize ID to prevent SQL injection - only allow integers
+$id = isset($_REQUEST['id']) ? intval($_REQUEST['id']) : 0;
+
+// SECURITY FIX: Use prepared statement to prevent SQL injection
+$stmt = mysqli_prepare($GLOBALS["___mysqli_ston"], "SELECT * FROM blog_categories WHERE id = ?");
+mysqli_stmt_bind_param($stmt, "i", $id);
+mysqli_stmt_execute($stmt);
+$result = mysqli_stmt_get_result($stmt);
+$row = mysqli_fetch_assoc($result);
+mysqli_stmt_close($stmt);
+
+// Redirect if category not found
+if (!$row) {
+    header("Location: index.php");
+    exit;
+}
+?>
 <!DOCTYPE html>
 <html lang="zxx">
 <head>
-	<title>Category-<?php echo $row['name']; ?>|<?php getwebname("titles");?></title>
+	<title>Category-<?php echo htmlspecialchars($row['name'], ENT_QUOTES, 'UTF-8'); ?>|<?php getwebname("titles");?></title>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta charset="utf-8">
 	<link id="browser_favicon" rel="shortcut icon" href="blogadmin/images/<?php geticon("titles"); ?>">
@@ -39,7 +55,7 @@ $row = mysqli_fetch_assoc($result);?>
 		<li class="breadcrumb-item">
 			<a href="index.php">Home</a>
 		</li>
-		<li class="breadcrumb-item active"><?php echo $row['name']; ?></li>
+		<li class="breadcrumb-item active"><?php echo htmlspecialchars($row['name'], ENT_QUOTES, 'UTF-8'); ?></li>
 	</ol>
 	<!--//banner-->
 	<!--/main-->
@@ -72,36 +88,36 @@ $row = mysqli_fetch_assoc($result);?>
 									<a class="twitter" href="<?php getlinks("links","twitter");?>">
 										<i class="fab fa-twitter"></i>
 										<span class="count"></span> Twitter</a>
-									</li>
-									<li>
-										<a class="facebook" href="<?php getlinks("links","facebook");?>">
-											<i class="fab fa-facebook-f"></i>
-											<span class="count"></span> Facebook</a>
-										</li>
-										<li>
-											<a class="dribble" href="<?php getlinks("links","dribble");?>">
-												<i class="fab fa-dribbble"></i>
+								</li>
+								<li>
+									<a class="facebook" href="<?php getlinks("links","facebook");?>">
+										<i class="fab fa-facebook-f"></i>
+										<span class="count"></span> Facebook</a>
+								</li>
+								<li>
+									<a class="dribble" href="<?php getlinks("links","dribble");?>">
+										<i class="fab fa-dribbble"></i>
 
-												<span class="count"></span> Dribble</a>
-											</li>
-											<li>
-												<a class="pin" href="<?php getlinks("links","pinterest");?>">
-													<i class="fab fa-pinterest"></i>
-													<span class="count"></span> Pinterest</a>
-												</li>
+										<span class="count"></span> Dribble</a>
+								</li>
+								<li>
+									<a class="pin" href="<?php getlinks("links","pinterest");?>">
+										<i class="fab fa-pinterest"></i>
+										<span class="count"></span> Pinterest</a>
+								</li>
 
-											</ul>
-										</div>
-										<div class="tech-btm">
-											<h4>Older Posts</h4>
-											<?php getolderposts("blogs");?>
-											<!--olderpostsendhere-->
-										</div>
-									</div>
-								</aside>
+							</ul>
+						</div>
+						<div class="tech-btm">
+							<h4>Older Posts</h4>
+							<?php getolderposts("blogs");?>
+							<!--olderpostsendhere-->
+						</div>
+					</div>
+				</aside>
 				<!--//right-->
-				</div>
 			</div>
+		</div>
 	</section>
 	<!--//main-->
 
@@ -130,13 +146,13 @@ $row = mysqli_fetch_assoc($result);?>
 	<script>
 		$(document).ready(function () {
 			/*
-									var defaults = {
-							  			containerID: 'toTop', // fading element id
-										containerHoverID: 'toTopHover', // fading element hover id
-										scrollSpeed: 1200,
-										easingType: 'linear' 
-							 		};
-									*/
+			var defaults = {
+				containerID: 'toTop', // fading element id
+				containerHoverID: 'toTopHover', // fading element hover id
+				scrollSpeed: 1200,
+				easingType: 'linear' 
+			};
+			*/
 
 			$().UItoTop({
 				easingType: 'easeOutQuart'

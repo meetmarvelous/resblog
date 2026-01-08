@@ -90,51 +90,53 @@ require_once('database/db.php');//db config file
 		<div class="container">
 			<h3 class="tittle">Search Results</h3>
 			<div class="inner-sec">
-				<?php  if ($row_count==0) {
-		# code...
-    						echo "<p style=color:#E9573F><b>sorry your search for:<u style=color:black>$search_keyword</u> returned zero results</b></p>";
-    						echo "<p><b style=color:#4FC1E9>Suggestions<b><br>Your search item is not available on Our Website<br>Try being more specific with key words<br>Enter key word using title<br>Try search using category<br>Try again later<br></p>";
-    						echo "<p><a href=\"http://www.google.com/search?q=" 
-    						. $search_keyword . "\" target=\"_blank\" title=\"Look up 
-    						" . $search_keyword . " on Google\" style=color:#37BC9B>Click here</a> to try the 
-    						search on google</p>";
-    					}
-    					else{
-    						echo "<p style=color:#4FC1E9><b>you searched for:<u style=color:black> $search_keyword</u></b></p>";
-    						echo "<p style=color:#37BC9B><b>Results($row_count)..</b></p>";
-    					}
-    					?>
+				<?php  
+				// SECURITY FIX: Escape search keyword to prevent XSS attacks
+				$safe_keyword = htmlspecialchars($search_keyword, ENT_QUOTES, 'UTF-8');
+				$url_safe_keyword = urlencode($search_keyword);
+				
+				if ($row_count==0) {
+					# code...
+					echo "<p style=color:#E9573F><b>sorry your search for:<u style=color:black>" . $safe_keyword . "</u> returned zero results</b></p>";
+					echo "<p><b style=color:#4FC1E9>Suggestions<b><br>Your search item is not available on Our Website<br>Try being more specific with key words<br>Enter key word using title<br>Try search using category<br>Try again later<br></p>";
+					echo "<p><a href=\"http://www.google.com/search?q=" . $url_safe_keyword . "\" target=\"_blank\" title=\"Look up " . $safe_keyword . " on Google\" style=color:#37BC9B>Click here</a> to try the search on google</p>";
+				}
+				else{
+					echo "<p style=color:#4FC1E9><b>you searched for:<u style=color:black> " . $safe_keyword . "</u></b></p>";
+					echo "<p style=color:#37BC9B><b>Results($row_count)..</b></p>";
+				}
+				?>
 				<!--left-->
 				<div class="left-blog-info-w3layouts-agileits text-left">
 					<div class="row">
 						<?php
-    					if(!empty($result)) { 
-    						foreach($result as $row) {
+    				if(!empty($result)) { 
+    					foreach($result as $row) {
                                 ?>
 						<div class="col-lg-4 card">
-							<a href="single.php?id=<?php echo $row['id']; ?>">
-								<img src="blogadmin/images/<?php echo $row['photo']; ?>" class="card-img-top img-fluid" alt="fantastic cms" style="width: 480px;height: 300px">
+							<a href="single.php?id=<?php echo htmlspecialchars($row['id'], ENT_QUOTES, 'UTF-8'); ?>">
+								<img src="blogadmin/images/<?php echo htmlspecialchars($row['photo'], ENT_QUOTES, 'UTF-8'); ?>" class="card-img-top img-fluid" alt="fantastic cms" style="width: 480px;height: 300px">
 							</a>
 							<div class="card-body">
 								<ul class="blog-icons my-4">
 									<li>
 										<a href="#">
-											<i class="far fa-calendar-alt"></i> <?php echo $row['date']; ?></a>
+											<i class="far fa-calendar-alt"></i> <?php echo htmlspecialchars($row['date'], ENT_QUOTES, 'UTF-8'); ?></a>
 									</li>
 									<li class="mx-2">
 										<a href="#">
-											<i class="far fa-user"></i><?php echo $row['author']; ?></a>
+											<i class="far fa-user"></i><?php echo htmlspecialchars($row['author'], ENT_QUOTES, 'UTF-8'); ?></a>
 									</li>
 									<li>
 										<a href="#">
-											<i class="fas fa-tags"></i><?php echo $row['tags']; ?></a>
+											<i class="fas fa-tags"></i><?php echo htmlspecialchars($row['tags'], ENT_QUOTES, 'UTF-8'); ?></a>
 									</li>
 
 								</ul>
 								<h5 class="card-title">
-									<a href="single.php?id=<?php echo $row['id']; ?>"><?php echo $row['title']; ?></a>
+									<a href="single.php?id=<?php echo htmlspecialchars($row['id'], ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars($row['title'], ENT_QUOTES, 'UTF-8'); ?></a>
 								</h5>
-								<a href="single.php?id=<?php echo $row['id']; ?>" class="btn btn-primary read-m">Read More</a>
+								<a href="single.php?id=<?php echo htmlspecialchars($row['id'], ENT_QUOTES, 'UTF-8'); ?>" class="btn btn-primary read-m">Read More</a>
 							</div>
 						</div>
 						<?php
@@ -175,13 +177,13 @@ require_once('database/db.php');//db config file
 	<script>
 		$(document).ready(function () {
 			/*
-									var defaults = {
-							  			containerID: 'toTop', // fading element id
-										containerHoverID: 'toTopHover', // fading element hover id
-										scrollSpeed: 1200,
-										easingType: 'linear' 
-							 		};
-									*/
+			var defaults = {
+				containerID: 'toTop', // fading element id
+				containerHoverID: 'toTopHover', // fading element hover id
+				scrollSpeed: 1200,
+				easingType: 'linear' 
+			};
+			*/
 
 			$().UItoTop({
 				easingType: 'easeOutQuart'

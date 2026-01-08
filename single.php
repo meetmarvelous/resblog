@@ -1,16 +1,37 @@
 <?php require("libs/fetch_data.php");?>
 <?php //code to get the item using its id
 include("database/conn.php");//database config file
-$id=$_REQUEST['id']; $query="SELECT * from blogs where id='".$id."'"; $result=mysqli_query($GLOBALS["___mysqli_ston"],$query) or die ( ((is_object($GLOBALS["___mysqli_ston"]))? mysqli_error($GLOBALS["___mysqli_ston"]) : (($___mysqli_res = mysqli_connect_error()) ?$___mysqli_res : true))); 
+
+// SECURITY FIX: Sanitize ID to prevent SQL injection - only allow integers
+$id = isset($_REQUEST['id']) ? intval($_REQUEST['id']) : 0;
+
+// SECURITY FIX: Use prepared statement to prevent SQL injection
+$stmt = mysqli_prepare($GLOBALS["___mysqli_ston"], "SELECT * FROM blogs WHERE id = ?");
+mysqli_stmt_bind_param($stmt, "i", $id);
+mysqli_stmt_execute($stmt);
+$result = mysqli_stmt_get_result($stmt);
 $row = mysqli_fetch_assoc($result);
-//pageview count query
-$page=$row['title'];
-$count="SELECT * FROM page_hits WHERE page='".$page."'";$feedback=mysqli_query($GLOBALS["___mysqli_ston"],$count) or die ( ((is_object($GLOBALS["___mysqli_ston"]))? mysqli_error($GLOBALS["___mysqli_ston"]) : (($___mysqli_res = mysqli_connect_error()) ?$___mysqli_res : true))); 
-$roo=mysqli_fetch_assoc($feedback);?>
+mysqli_stmt_close($stmt);
+
+// Redirect if blog not found
+if (!$row) {
+    header("Location: index.php");
+    exit;
+}
+
+//pageview count query - using prepared statement
+$page = $row['title'];
+$stmt2 = mysqli_prepare($GLOBALS["___mysqli_ston"], "SELECT * FROM page_hits WHERE page = ?");
+mysqli_stmt_bind_param($stmt2, "s", $page);
+mysqli_stmt_execute($stmt2);
+$feedback = mysqli_stmt_get_result($stmt2);
+$roo = mysqli_fetch_assoc($feedback);
+mysqli_stmt_close($stmt2);
+?>
 <!DOCTYPE html>
 <html lang="zxx">
 <head>
-	<title><?php echo $row['title']; ?>|<?php getwebname("titles");?></title>
+	<title><?php echo htmlspecialchars($row['title'], ENT_QUOTES, 'UTF-8'); ?>|<?php getwebname("titles");?></title>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta charset="utf-8">
 	<link id="browser_favicon" rel="shortcut icon" href="blogadmin/images/<?php geticon("titles"); ?>">
@@ -65,137 +86,137 @@ $roo=mysqli_fetch_assoc($feedback);?>
 						<div class="b-grid-top">
 							<div class="blog_info_left_grid">
 								<a href="#">
-									<img src="blogadmin/images/<?php echo $row['photo']; ?>" class="img-fluid" alt="image not available" style="width:900px;height:300px">
+									<img src="blogadmin/images/<?php echo htmlspecialchars($row['photo'], ENT_QUOTES, 'UTF-8'); ?>" class="img-fluid" alt="image not available" style="width:900px;height:300px">
 								</a>
 							</div>
 							<div class="blog-info-middle">
 								<ul>
 									<li>
 										<a href="#">
-											<i class="far fa-calendar-alt"></i><?php echo $row['date']; ?></a>
-										</li>
-										<li class="mx-2">
-											<a href="#">
-												<i class="far fa-user"></i><?php echo $row['author']; ?></a>
-											</li>
-											<li>
-												<a href="#">
-													<i class="far fa-tags"></i> <?php echo $row['tags']; ?></a>
-												</li>
-												<li>
-													<a href="#">
-														<i class="far fa-eye fa-x2"></i> <?php echo $roo['count']; ?></a>
-													</li>
+											<i class="far fa-calendar-alt"></i><?php echo htmlspecialchars($row['date'], ENT_QUOTES, 'UTF-8'); ?></a>
+									</li>
+									<li class="mx-2">
+										<a href="#">
+											<i class="far fa-user"></i><?php echo htmlspecialchars($row['author'], ENT_QUOTES, 'UTF-8'); ?></a>
+									</li>
+									<li>
+										<a href="#">
+											<i class="far fa-tags"></i> <?php echo htmlspecialchars($row['tags'], ENT_QUOTES, 'UTF-8'); ?></a>
+									</li>
+									<li>
+										<a href="#">
+											<i class="far fa-eye fa-x2"></i> <?php echo htmlspecialchars($roo['count'] ?? '0', ENT_QUOTES, 'UTF-8'); ?></a>
+									</li>
 
-												</ul>
-											</div>
-										</div>
+								</ul>
+							</div>
+						</div>
 
-										<h3>
-											<a href="single.html"><?php echo $row['title']; ?></a>
-										</h3>
-										<!--sharing script-->
-										<?php getsharingscript("links"); ?>
-										<?php echo $row['content']; ?>
-									</div>
-									<!--comments script will go here-->
-									<?php getcommentsscript("links"); ?>
-								</div>
+						<h3>
+							<a href="single.html"><?php echo htmlspecialchars($row['title'], ENT_QUOTES, 'UTF-8'); ?></a>
+						</h3>
+						<!--sharing script-->
+						<?php getsharingscript("links"); ?>
+						<?php echo $row['content']; ?>
+					</div>
+					<!--comments script will go here-->
+					<?php getcommentsscript("links"); ?>
+				</div>
 
-								<!--//left-->
-								<!--right-->
-								<aside class="col-lg-4 agileits-w3ls-right-blog-con text-right">
-									<div class="right-blog-info text-left">
-										<h4><strong>Categories</strong></h4>
-										<ul class="list-group single">
-											<?php countcategories();?>
-										</ul>
-										<div class="tech-btm widget_social">
-											<h4>Stay Connected</h4>
-											<ul>
+				<!--//left-->
+				<!--right-->
+				<aside class="col-lg-4 agileits-w3ls-right-blog-con text-right">
+					<div class="right-blog-info text-left">
+						<h4><strong>Categories</strong></h4>
+						<ul class="list-group single">
+							<?php countcategories();?>
+						</ul>
+						<div class="tech-btm widget_social">
+							<h4>Stay Connected</h4>
+							<ul>
 
-												<li>
-													<a class="twitter" href="<?php getlinks("links","twitter");?>">
-														<i class="fab fa-twitter"></i>
-														<span class="count"></span> Twitter</a>
-													</li>
-													<li>
-														<a class="facebook" href="<?php getlinks("links","facebook");?>">
-															<i class="fab fa-facebook-f"></i>
-															<span class="count"></span> Facebook</a>
-														</li>
-														<li>
-															<a class="dribble" href="<?php getlinks("links","dribble");?>">
-																<i class="fab fa-dribbble"></i>
+								<li>
+									<a class="twitter" href="<?php getlinks("links","twitter");?>">
+										<i class="fab fa-twitter"></i>
+										<span class="count"></span> Twitter</a>
+								</li>
+								<li>
+									<a class="facebook" href="<?php getlinks("links","facebook");?>">
+										<i class="fab fa-facebook-f"></i>
+										<span class="count"></span> Facebook</a>
+								</li>
+								<li>
+									<a class="dribble" href="<?php getlinks("links","dribble");?>">
+										<i class="fab fa-dribbble"></i>
 
-																<span class="count"></span> Dribble</a>
-															</li>
-															<li>
-																<a class="pin" href="<?php getlinks("links","pinterest");?>">
-																	<i class="fab fa-pinterest"></i>
-																	<span class="count"></span> Pinterest</a>
-																</li>
+										<span class="count"></span> Dribble</a>
+								</li>
+								<li>
+									<a class="pin" href="<?php getlinks("links","pinterest");?>">
+										<i class="fab fa-pinterest"></i>
+										<span class="count"></span> Pinterest</a>
+								</li>
 
-															</ul>
-														</div>
-														<div class="tech-btm">
-															<h4>Editor's Choice</h4>
-															<?php geteditorschoice("editors_choice");?>
-															<!--olderpostsendhere-->
-														</div>
-													</div>
-												</aside>
-												<!--//right-->
-											</div>
-										</div>
-									</section>
-									<!--//main-->
-									<!--footer-->
-									<?php include("footer.php");?>
-									<!---->
-									<!-- js -->
-									<script src="js/jquery-2.2.3.min.js"></script>
-									<!-- //js -->
-									<!--/ start-smoth-scrolling -->
-									<script src="js/move-top.js"></script>
-									<script src="js/easing.js"></script>
-									<script>
-										jQuery(document).ready(function ($) {
-											$(".scroll").click(function (event) {
-												event.preventDefault();
-												$('html,body').animate({
-													scrollTop: $(this.hash).offset().top
-												}, 900);
-											});
-										});
-									</script>
-									<!--// end-smoth-scrolling -->
+							</ul>
+						</div>
+						<div class="tech-btm">
+							<h4>Editor's Choice</h4>
+							<?php geteditorschoice("editors_choice");?>
+							<!--olderpostsendhere-->
+						</div>
+					</div>
+				</aside>
+				<!--//right-->
+			</div>
+		</div>
+	</section>
+	<!--//main-->
+	<!--footer-->
+	<?php include("footer.php");?>
+	<!---->
+	<!-- js -->
+	<script src="js/jquery-2.2.3.min.js"></script>
+	<!-- //js -->
+	<!--/ start-smoth-scrolling -->
+	<script src="js/move-top.js"></script>
+	<script src="js/easing.js"></script>
+	<script>
+		jQuery(document).ready(function ($) {
+			$(".scroll").click(function (event) {
+				event.preventDefault();
+				$('html,body').animate({
+					scrollTop: $(this.hash).offset().top
+				}, 900);
+			});
+		});
+	</script>
+	<!--// end-smoth-scrolling -->
 
-									<script>
-										$(document).ready(function () {
+	<script>
+		$(document).ready(function () {
 			/*
-									var defaults = {
-							  			containerID: 'toTop', // fading element id
-										containerHoverID: 'toTopHover', // fading element hover id
-										scrollSpeed: 1200,
-										easingType: 'linear' 
-							 		};
-							 		*/
+			var defaults = {
+				containerID: 'toTop', // fading element id
+				containerHoverID: 'toTopHover', // fading element hover id
+				scrollSpeed: 1200,
+				easingType: 'linear' 
+			};
+			*/
 
-							 		$().UItoTop({
-							 			easingType: 'easeOutQuart'
-							 		});
+			$().UItoTop({
+				easingType: 'easeOutQuart'
+			});
 
-							 	});
-							 </script>
-							 <a href="#home" class="scroll" id="toTop" style="display: block;">
-							 	<span id="toTopHover" style="opacity: 1;"> </span>
-							 </a>
+		});
+	</script>
+	<a href="#home" class="scroll" id="toTop" style="display: block;">
+		<span id="toTopHover" style="opacity: 1;"> </span>
+	</a>
 
-							 <!-- //Custom-JavaScript-File-Links -->
-							 <script src="js/bootstrap.js"></script>
+	<!-- //Custom-JavaScript-File-Links -->
+	<script src="js/bootstrap.js"></script>
 
 
-							</body>
+</body>
 
-							</html>
+</html>

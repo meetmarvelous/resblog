@@ -118,7 +118,7 @@
                <a href="<?php echo PREPEND_PATH; ?>admin/pageHome.php" class="btn btn-danger navbar-btn btn-sm hidden-xs"><i class="fa fa-cog"></i> <strong><?php echo $Translation['admin area']; ?></strong></a>
                <a href="<?php echo PREPEND_PATH; ?>admin/pageHome.php" class="btn btn-danger navbar-btn btn-sm visible-xs btn-sm"><i class="fa fa-cog"></i> <strong><?php echo $Translation['admin area']; ?></strong></a>
                <?php } ?>
-               <?php if(!$_GET['signIn'] && !$_GET['loginFailed']){ ?>
+               <?php if(!($_GET['signIn'] ?? false) && !($_GET['loginFailed'] ?? false)){ ?>
                <?php if(getLoggedMemberID() == $adminConfig['anonymousMember']){ ?>
                <p class="navbar-text navbar-right">&nbsp;</p>
                <a href="<?php echo PREPEND_PATH; ?>index.php?signIn=1" class="btn btn-success navbar-btn btn-sm navbar-right"><strong><?php echo $Translation['sign in']; ?></strong></a>
