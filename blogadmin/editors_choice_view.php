@@ -89,6 +89,16 @@
 	$x->TemplateDV = 'templates/editors_choice_templateDV.html';
 	$x->TemplateDVP = 'templates/editors_choice_templateDVP.html';
 
+	// mm: build the query based on current member's permissions
+	$DisplayRecords = $_REQUEST['DisplayRecords'] ?? null;
+	if(!in_array($DisplayRecords, array('user', 'group'))){ $DisplayRecords = 'all'; }
+	if($perm[2]==1 || ($perm[2]>1 && $DisplayRecords=='user' && !($_REQUEST['NoFilter_x'] ?? false))){ // view owner only
+		$x->QueryFrom.=', membership_userrecords';
+		$x->QueryWhere="where `editors_choice`.`id`=membership_userrecords.pkValue and membership_userrecords.tableName='editors_choice' and lcase(membership_userrecords.memberID)='".getLoggedMemberID()."'";
+	}elseif($perm[2]==2 || ($perm[2]>2 && $DisplayRecords=='group' && !($_REQUEST['NoFilter_x'] ?? false))){ // view group only
+		$x->QueryFrom.=', membership_userrecords';
+		$x->QueryWhere="where `editors_choice`.`id`=membership_userrecords.pkValue and membership_userrecords.tableName='editors_choice' and membership_userrecords.groupID='".getLoggedGroupID()."'";
+	}elseif($perm[2]==3){ // view all
 		// no further action
 	}elseif($perm[2]==0){ // view none
 		$x->QueryFields = array("Not enough permissions" => "NEP");

@@ -122,6 +122,16 @@
 	$x->TemplateDV = 'templates/blogs_templateDV.html';
 	$x->TemplateDVP = 'templates/blogs_templateDVP.html';
 
+	// mm: build the query based on current member's permissions
+	$DisplayRecords = $_REQUEST['DisplayRecords'] ?? null;
+	if(!in_array($DisplayRecords, array('user', 'group'))){ $DisplayRecords = 'all'; }
+	if($perm[2]==1 || ($perm[2]>1 && $DisplayRecords=='user' && !($_REQUEST['NoFilter_x'] ?? false))){ // view owner only
+		$x->QueryFrom.=', membership_userrecords';
+		$x->QueryWhere="where `blogs`.`id`=membership_userrecords.pkValue and membership_userrecords.tableName='blogs' and lcase(membership_userrecords.memberID)='".getLoggedMemberID()."'";
+	}elseif($perm[2]==2 || ($perm[2]>2 && $DisplayRecords=='group' && !($_REQUEST['NoFilter_x'] ?? false))){ // view group only
+		$x->QueryFrom.=', membership_userrecords';
+		$x->QueryWhere="where `blogs`.`id`=membership_userrecords.pkValue and membership_userrecords.tableName='blogs' and membership_userrecords.groupID='".getLoggedGroupID()."'";
+	}elseif($perm[2]==3){ // view all
 		// no further action
 	}elseif($perm[2]==0){ // view none
 		$x->QueryFields = array("Not enough permissions" => "NEP");
