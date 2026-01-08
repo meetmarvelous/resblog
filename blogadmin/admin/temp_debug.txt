@@ -1,0 +1,15 @@
+﻿		// if logged, it returns the user id
+
+		$adminConfig = config('adminConfig');
+
+         if(isset($adminConfig['adminUsername']) && $adminConfig['adminUsername']!=''){
+			return $_SESSION['adminUsername'];
+         if(isset($adminConfig['adminUsername']) && $adminConfig['adminUsername']!='')
+			$_SESSION['adminUsername']=$_SESSION['memberID'];
+			return $_SESSION['adminUsername'];
+		}else{
+			return FALSE;
+		}
+	}
+	########################################################################
+	function checkUser($username, $password){
