@@ -501,7 +501,7 @@ class DataList{
 			// test current filter group
 			$GroupHasFilters = 0;
 			for($j = 0; $j < $FiltersPerGroup; $j++){
-				if($FilterField[$i+$j] != '' && $this->QueryFieldsIndexed[($FilterField[$i+$j])] != '' && $FilterOperator[$i+$j] != '' && ($FilterValue[$i+$j] != '' || strpos($FilterOperator[$i+$j], 'empty'))){
+				if(($FilterField[$i+$j] ?? '') != '' && ($this->QueryFieldsIndexed[($FilterField[$i+$j] ?? '')] ?? '') != '' && ($FilterOperator[$i+$j] ?? '') != '' && (($FilterValue[$i+$j] ?? '') != '' || strpos(($FilterOperator[$i+$j] ?? ''), 'empty'))){
 					$GroupHasFilters = 1;
 					break;
 				}
@@ -518,7 +518,7 @@ class DataList{
 				$this->QueryWhere .= " <FilterGroup> " . $FilterAnd[$i] . " (";
 
 				for($j = 0; $j < $FiltersPerGroup; $j++){
-					if($FilterField[$i+$j] != '' && $this->QueryFieldsIndexed[($FilterField[$i+$j])] != '' && $FilterOperator[$i+$j] != '' && ($FilterValue[$i+$j] != '' || strpos($FilterOperator[$i+$j], 'empty'))){
+					if(($FilterField[$i+$j] ?? '') != '' && ($this->QueryFieldsIndexed[($FilterField[$i+$j] ?? '')] ?? '') != '' && ($FilterOperator[$i+$j] ?? '') != '' && (($FilterValue[$i+$j] ?? '') != '' || strpos(($FilterOperator[$i+$j] ?? ''), 'empty'))){
 						if($FilterAnd[$i+$j]==''){
 							$FilterAnd[$i+$j]='and';
 						}
@@ -674,6 +674,7 @@ class DataList{
 	// quick search and TV action buttons  
 		if(!$this->HideTableView && !($dvprint_x && $this->AllowSelection && $SelectedID) && !$PrintDV){
 			$buttons_all = $quick_search_html = '';
+			$buttonsCount = 0;
 
 			if($Print_x == ''){
 
@@ -980,7 +981,7 @@ class DataList{
 				$result = sql($tvQuery . " limit " . ($i-1) . ",{$this->RecordsPerPage}", $eo);
 				while(($row = db_fetch_array($result)) && ($i < ($FirstRecord + $this->RecordsPerPage))){
 					/* skip displaying the current record if we're in TVP or multiple DVP and the record is not checked */
-					if(($PrintTV || $Print_x) && count($_REQUEST['record_selector']) && !in_array($row[$FieldCountTV], $_REQUEST['record_selector'])) continue;
+					if(($PrintTV || $Print_x) && count($_REQUEST['record_selector'] ?? []) && !in_array($row[$FieldCountTV], $_REQUEST['record_selector'] ?? [])) continue;
 
 					$attr_id = html_attr($row[$FieldCountTV]); /* pk value suitable for inserting into html tag attributes */
 					$js_id = addslashes($row[$FieldCountTV]); /* pk value suitable for inserting into js strings */
@@ -990,7 +991,7 @@ class DataList{
 
 					if(!$Print_x){
 						$this->HTML .= ($SelectedID == $row[$FieldCountTV] ? '<tr class="active">' : '<tr>');
-						$checked = (is_array($_REQUEST['record_selector']) && in_array($row[$FieldCountTV], $_REQUEST['record_selector']) ? ' checked' : '');
+						$checked = (is_array($_REQUEST['record_selector'] ?? null) && in_array($row[$FieldCountTV], $_REQUEST['record_selector'] ?? []) ? ' checked' : '');
 						$this->HTML .= "<td class=\"text-center\"><input class=\"hidden-print record_selector\" type=\"checkbox\" id=\"record_selector_{$attr_id}\" name=\"record_selector[]\" value=\"{$attr_id}\"{$checked}></td>";
 					}
 
@@ -1169,8 +1170,8 @@ class DataList{
 
 	// hidden variables ....
 		foreach($this->filterers as $filterer => $caption){
-			if($_REQUEST['filterer_' . $filterer] != ''){
-				$this->HTML .= "<input name=\"filterer_{$filterer}\" value=\"" . html_attr($_REQUEST['filterer_' . $filterer]) . "\" type=\"hidden\" />";
+			if(($_REQUEST['filterer_' . $filterer] ?? '') != ''){
+				$this->HTML .= "<input name=\"filterer_{$filterer}\" value=\"" . html_attr($_REQUEST['filterer_' . $filterer] ?? '') . "\" type=\"hidden\" />";
 				break; // currently, only one filterer can be applied at a time
 			}
 		}
@@ -1191,12 +1192,12 @@ class DataList{
 			if($i%$FiltersPerGroup == 1 && $i != 1 && $FilterAnd[$i] != ''){
 				$FiltersCode .= "<input name=\"FilterAnd[$i]\" value=\"$FilterAnd[$i]\" type=\"hidden\">\n";
 			}
-			if($FilterField[$i] != '' && $FilterOperator[$i] != '' && ($FilterValue[$i] != '' || strpos($FilterOperator[$i], 'empty'))){
+			if(($FilterField[$i] ?? '') != '' && ($FilterOperator[$i] ?? '') != '' && (($FilterValue[$i] ?? '') != '' || strpos(($FilterOperator[$i] ?? ''), 'empty'))){
 				if(!strstr($FiltersCode, "<input name=\"FilterAnd[{$i}]\" value="))
-					$FiltersCode .= "<input name=\"FilterAnd[{$i}]\" value=\"{$FilterAnd[$i]}\" type=\"hidden\">\n";
-				$FiltersCode .= "<input name=\"FilterField[{$i}]\" value=\"{$FilterField[$i]}\" type=\"hidden\">\n";
-				$FiltersCode .= "<input name=\"FilterOperator[{$i}]\" value=\"{$FilterOperator[$i]}\" type=\"hidden\">\n";
-				$FiltersCode .= "<input name=\"FilterValue[{$i}]\" value=\"" . html_attr($FilterValue[$i]) . "\" type=\"hidden\">\n";
+					$FiltersCode .= "<input name=\"FilterAnd[{$i}]\" value=\"" . ($FilterAnd[$i] ?? '') . "\" type=\"hidden\">\n";
+				$FiltersCode .= "<input name=\"FilterField[{$i}]\" value=\"" . ($FilterField[$i] ?? '') . "\" type=\"hidden\">\n";
+				$FiltersCode .= "<input name=\"FilterOperator[{$i}]\" value=\"" . ($FilterOperator[$i] ?? '') . "\" type=\"hidden\">\n";
+				$FiltersCode .= "<input name=\"FilterValue[{$i}]\" value=\"" . html_attr($FilterValue[$i] ?? '') . "\" type=\"hidden\">\n";
 			}
 		}
 		$FiltersCode .= "<input name=\"DisplayRecords\" value=\"$DisplayRecords\" type=\"hidden\" />";
@@ -1256,7 +1257,7 @@ class DataList{
 
 		// $this->HTML .= '<font face="garamond">'.html_attr($tvQuery).'</font>';  // uncomment this line for debugging the table view query
 
-		if($dvShown && $tvShown) $this->ContentType='tableview+detailview';
+		if(($dvShown ?? false) && ($tvShown ?? false)) $this->ContentType='tableview+detailview';
 		if($dvprint_x!='') $this->ContentType='print-detailview';
 		if($Print_x!='') $this->ContentType='print-tableview';
 		if($PrintDV!='') $this->ContentType='print-detailview';

@@ -279,7 +279,7 @@
 				if(sqlValue("select count(1) from membership_users where lcase(memberID)='$username' and passMD5='$password' and isApproved=1 and isBanned=0")==1){
 					$_SESSION['memberID']=$username;
 					$_SESSION['memberGroupID']=sqlValue("select groupID from membership_users where lcase(memberID)='$username'");
-					if($_POST['rememberMe']==1){
+					if(($_POST['rememberMe'] ?? 0)==1){
 						@setcookie('BLOG_ADMIN_rememberMe', md5($username.$password), time()+86400*30);
 					}else{
 						@setcookie('BLOG_ADMIN_rememberMe', '', time()-86400*30);
@@ -311,7 +311,7 @@
 			if(!headers_sent()) header('HTTP/1.0 403 Forbidden');
 			redirect("index.php?loginFailed=1");
 			exit;
-		}elseif((!$_SESSION['memberID'] || $_SESSION['memberID']==$adminConfig['anonymousMember']) && isset($_COOKIE['BLOG_ADMIN_rememberMe']) && $_COOKIE['BLOG_ADMIN_rememberMe']!=''){
+		}elseif((!($_SESSION['memberID'] ?? false) || ($_SESSION['memberID'] ?? '')==$adminConfig['anonymousMember']) && isset($_COOKIE['BLOG_ADMIN_rememberMe']) && $_COOKIE['BLOG_ADMIN_rememberMe']!=''){
 			$chk=makeSafe($_COOKIE['BLOG_ADMIN_rememberMe']);
 			if($username=sqlValue("select memberID from membership_users where convert(md5(concat(memberID, passMD5)), char)='$chk' and isBanned=0")){
 				$_SESSION['memberID']=$username;
@@ -355,7 +355,7 @@
 					</ul>
 				<?php } ?>
 
-				<?php if(!$_GET['signIn'] && !$_GET['loginFailed']){ ?>
+				<?php if(!($_GET['signIn'] ?? false) && !($_GET['loginFailed'] ?? false)){ ?>
 					<?php if(getLoggedMemberID() == $adminConfig['anonymousMember']){ ?>
 						<p class="navbar-text navbar-right">&nbsp;</p>
 						<a href="<?php echo PREPEND_PATH; ?>index.php?signIn=1" class="btn btn-success navbar-btn navbar-right"><?php echo $Translation['sign in']; ?></a>
@@ -995,7 +995,7 @@
 				}
 
 				/* when no groups defined, $table_group_index['None'] is NULL, so $menu_index is still set to 0 */
-				$menu_index = intval($table_group_index[$tc[3]]);
+				$menu_index = intval($table_group_index[$tc[3]] ?? 0);
 				if(!$tChkHL && $tChkHL !== 0) $menu[$menu_index] .= "<li><a href=\"{$prepend_path}{$tn}_view.php?t={$t}{$searchFirst}\"><img src=\"{$prepend_path}" . ($tc[2] ? $tc[2] : 'blank.gif') . "\" height=\"32\"> {$tc[0]}</a></li>";
 			}
 		}
@@ -1009,7 +1009,7 @@
 				if(!isset($link['url']) || !isset($link['title'])) continue;
 				if($memberInfo['admin'] || @in_array($memberInfo['group'], $link['groups']) || @in_array('*', $link['groups'])){
 					$menu_index = intval($link['table_group']);
-					if(!$links_added[$menu_index]) $menu[$menu_index] .= '<li class="divider"></li>';
+					if(!($links_added[$menu_index] ?? false)) $menu[$menu_index] .= '<li class="divider"></li>';
 
 					/* add prepend_path to custom links if they aren't absolute links */
 					if(!preg_match('/^(http|\/\/)/i', $link['url'])) $link['url'] = $prepend_path . $link['url'];
