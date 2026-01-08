@@ -259,7 +259,7 @@ class DataList{
 
 			// compose filters and sorting
 			foreach($this->filterers as $filterer => $caption){
-				if($_REQUEST['filterer_' . $filterer] != '') $filtersGET .= '&filterer_' . $filterer . '=' . urlencode($_REQUEST['filterer_' . $filterer]);
+				if(($_REQUEST['filterer_' . $filterer] ?? '') != '') $filtersGET .= '&filterer_' . $filterer . '=' . urlencode($_REQUEST['filterer_' . $filterer]);
 			}
 			for($i = 1; $i <= (datalist_filters_count * $FiltersPerGroup); $i++){ // Number of filters allowed
 				if($FilterField[$i] != '' && $FilterOperator[$i] != '' && ($FilterValue[$i] != '' || strpos($FilterOperator[$i], 'empty'))){
@@ -324,7 +324,7 @@ class DataList{
 
 			// compose filters and sorting
 			foreach($this->filterers as $filterer => $caption){
-				if($_REQUEST['filterer_' . $filterer] != '') $filtersGET .= '&filterer_' . $filterer . '=' . urlencode($_REQUEST['filterer_' . $filterer]);
+				if(($_REQUEST['filterer_' . $filterer] ?? '') != '') $filtersGET .= '&filterer_' . $filterer . '=' . urlencode($_REQUEST['filterer_' . $filterer]);
 			}
 			for($i = 1; $i <= (datalist_filters_count * $FiltersPerGroup); $i++){ // Number of filters allowed
 				if($FilterField[$i] != '' && $FilterOperator[$i] != '' && ($FilterValue[$i] != '' || strpos($FilterOperator[$i], 'empty'))){
@@ -462,7 +462,7 @@ class DataList{
 
 	// apply lookup filterers to the query
 		foreach($this->filterers as $filterer => $caption){
-			if($_REQUEST['filterer_' . $filterer] != ''){
+			if(($_REQUEST['filterer_' . $filterer] ?? '') != ''){
 				if($this->QueryWhere == '')
 					$this->QueryWhere = "where ";
 				else
@@ -1308,11 +1308,11 @@ class DataList{
 		for($i = 1; $i <= datalist_filters_count * $FiltersPerGroup; $i++){
 			if(!isset($fand[$i]) && !isset($ffield[$i]) && !isset($fop[$i]) && !isset($fvalue[$i])) continue;
 
-			if(($fvalue[$i] == '' && !in_array($fop[$i], array('is-empty', 'is-not-empty'))) || !$ffield[$i]){
+			if((($fvalue[$i] ?? '') == '' && !in_array(($fop[$i] ?? ''), array('is-empty', 'is-not-empty'))) || !($ffield[$i] ?? '')){
 				unset($fand[$i], $ffield[$i], $fop[$i], $fvalue[$i]);
 			}else{
-				if(!$fand[$i]) $fand[$i] = 'and';
-				if(!$fop[$i]) $fop[$i] = 'equal-to';
+				if(!($fand[$i] ?? '')) $fand[$i] = 'and';
+				if(!($fop[$i] ?? '')) $fop[$i] = 'equal-to';
 			}
 		}
 

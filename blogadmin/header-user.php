@@ -7,6 +7,30 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
+    
+    <title><?php echo ucwords('BLOG ADMIN'); ?> | Dashboard</title>
+    <link id="browser_favicon" rel="shortcut icon" href="<?php echo PREPEND_PATH; ?>resources/images/appgini-icon.png">
+
+    <link rel="stylesheet" href="<?php echo PREPEND_PATH; ?>resources/initializr/css/yeti.css">
+    <link rel="stylesheet" href="<?php echo PREPEND_PATH; ?>resources/lightbox/css/lightbox.css" media="screen">
+    <link rel="stylesheet" href="<?php echo PREPEND_PATH; ?>resources/select2/select2.css" media="screen">
+    <link rel="stylesheet" href="<?php echo PREPEND_PATH; ?>resources/timepicker/bootstrap-timepicker.min.css" media="screen">
+    <link rel="stylesheet" href="<?php echo PREPEND_PATH; ?>resources/datepicker/css/datepicker.css" media="screen">
+    <link rel="stylesheet" href="<?php echo PREPEND_PATH; ?>dynamic.css.php">
+    <link rel="stylesheet" href="<?php echo PREPEND_PATH; ?>css/sb-admin.css">
+    <link rel="stylesheet" href="<?php echo PREPEND_PATH; ?>font-awesome/css/font-awesome.min.css">
+
+    <!--[if lt IE 9]>
+      <script src="<?php echo PREPEND_PATH; ?>resources/initializr/js/vendor/modernizr-2.6.2-respond-1.1.0.min.js"></script>
+    <![endif]-->
+    <script src="<?php echo PREPEND_PATH; ?>resources/jquery/js/jquery-1.12.4.min.js"></script>
+    <script>var $j = jQuery.noConflict();</script>
+    <script src="<?php echo PREPEND_PATH; ?>resources/initializr/js/vendor/bootstrap.min.js"></script>
+
+  </head>
+  <body>
+    <div id="wrapper">
+      <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
         <div class="navbar-header">
           <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
             <span class="sr-only">Toggle navigation</span>
